@@ -72,8 +72,8 @@ function drawCircle(context,entity) {
         fillStyle = entity["colour"];
         strokeStyle = fillStyle;
         arc(x, y, (entity["radius"])?entity["radius"]:50, 0, 2.0 * Math.PI, false); 
-        fill(); 
-        stroke();                                
+        stroke(); 
+        fill();                               
     }
 }
 
@@ -270,11 +270,25 @@ mouse.mousedraggers.push(function(x,y,clicked,e) {
 
 function update() {
     //XXX: TODO Get the world from the webservice using a XMLHTTPRequest
-    sendJSONXMLHTTPRequest('/world', null, (response) => {
-        world = response;
-        drawNextFrame();
-        drawFrame();
-    })
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState==4) {
+            try {
+                if (xhr.status==200) {
+                    world = JSON.parse(xhr.response);
+                    drawNextFrame();
+                }
+            }
+            catch(e) {
+                alert('Error: ' + e.name);
+            }
+        }
+    };
+    xhr.open('GET', '/world');
+    xhr.setRequestHeader('Accept', 'application/json');
+    xhr.send();
+
+    drawFrame();
 }
 
 // 30 frames per second
